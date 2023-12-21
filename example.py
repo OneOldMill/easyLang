@@ -1,6 +1,7 @@
 # Python 3 server example
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import time
+from httplib import HTTPResponse
+from os import curdir,sepimport time
 
 hostName = "localhost"
 serverPort = 8080
@@ -36,7 +37,7 @@ class MyServer(BaseHTTPRequestHandler):
 if __name__ == "__main__":        
     webServer = HTTPServer((hostName, serverPort), MyServer)
     print("Server started http://%s:%s" % (hostName, serverPort))
-
+    
     try:
         webServer.serve_forever()
     except KeyboardInterrupt:
