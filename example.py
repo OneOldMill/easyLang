@@ -2,7 +2,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time
 
-hostName = "https://oneoldmill.github.io/easyLang"
+hostName = "localhost"
 serverPort = 8080
 
 class MyServer(BaseHTTPRequestHandler):
