@@ -1,7 +1,6 @@
 # Python 3 server example
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from httplib import HTTPResponse
-from os import curdir,sepimport time
 
 hostName = "localhost"
 serverPort = 8080
