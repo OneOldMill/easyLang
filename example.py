@@ -17,6 +17,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes("<p>This is an example web server.</p>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
         #self.wfile.write(bytes("Hello, world!", "utf-8"))
+        return
 
      def do_POST(self):
         # read the content-length header
@@ -30,6 +31,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(body)
+        return
     
 if __name__ == "__main__":        
     webServer = HTTPServer((hostName, serverPort), MyServer)
