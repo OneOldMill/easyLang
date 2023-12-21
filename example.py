@@ -19,7 +19,7 @@ class MyServer(BaseHTTPRequestHandler):
         #self.wfile.write(bytes("Hello, world!", "utf-8"))
         return
 
-     def do_POST(self):
+    def do_POST(self):
         # read the content-length header
         content_length = int(self.headers.get("Content-Length"))
         # read that many bytes from the body of the request
