@@ -1,4 +1,4 @@
-name: run example.py
+name: start easyLang
 on: push
 jobs:
   build:
