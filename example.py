@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
 
-address = ('https://oneoldmill.github.io/easyLang', 8080)
+address = ('o.o.o.o', 8080)
 
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
