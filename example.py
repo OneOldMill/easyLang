@@ -1,52 +1,67 @@
-# Python 3 server example
-# https://pythonbasics.org/webserver/
-from http.server import BaseHTTPRequestHandler, HTTPServer
-#import time
-#import db_select.py
-#from process import input_process
+# Run command:
+#
+#   $ python3 HttpPostServer.py
+#
+# Test POST with a complete file:
+#
+#   $ curl --data-binary "@small_file.bin" "http://127.0.0.1:8080/small.bin"
+#
+# Test POSTing a file progressively (chunked mode):
+#
+#   $ curl --header "Transfer-Encoding: chunked" \
+#          --data-binary "@large_file.bin" "http://127.0.0.1:8080/large.bin"
 
-hostName = "localhost"
-serverPort = 8080
 
-class MyServer(BaseHTTPRequestHandler):
-     def do_GET(self):
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+PORT = 8080
+
+
+class TestHTTPRequestHandler(SimpleHTTPRequestHandler):
+    # Comment out to use the default base implementation of do_GET().
+    def do_GET(self):
+        print("### GET handler")
+        print(self.headers)
+
         self.send_response(200)
-        #self.send_response(status.code, status.message)
-        #self.send_header("Content-type", "text/html")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
-        self.wfile.write(bytes("<p>GET: %s</p>" % self.path, "utf-8"))
-        self.wfile.write(bytes("<body>", "utf-8"))
-        self.wfile.write(bytes("<p>This is do_GET of HTTP server.</p>", "utf-8"))
-        self.wfile.write(bytes("</body></html>", "utf-8"))
-        self.wfile.close()
-        #self.wfile.write(bytes("Hello, world!", "utf-8"))
-
-     def do_POST(self):
-        # read the content-length header
-        content_length = int(self.headers.get("Content-Length"))
-        # read that many bytes from the body of the request
-        body = self.rfile.read(content_length)
-
-        # result = input_process(body)
-        result = "apple-translated"
-          
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
-        #self.wfile.write(body)
-        self.wfile.write(bytes(result, 'utf8'))
-    
-if __name__ == "__main__":        
-    webServer = HTTPServer((hostName, serverPort), MyServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
+        self.wfile.write(b"Hello, world!")
 
-    try:
-        webServer.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    def do_POST(self):
+        print("### POST handler")
+        print(self.headers)
 
-    webServer.server_close()
-    print("Server stopped.")
+        self.send_response(200)
+        self.end_headers()
+
+        path = self.translate_path(self.path)
+
+        if "Content-Length" in self.headers:
+            content_length = int(self.headers["Content-Length"])
+            body = self.rfile.read(content_length)
+            with open(path, "wb") as out_file:
+                out_file.write(body)
+        elif "chunked" in self.headers.get("Transfer-Encoding", ""):
+            with open(path, "wb") as out_file:
+                while True:
+                    line = self.rfile.readline().strip()
+                    chunk_length = int(line, 16)
+                    if chunk_length == 0:
+                        break
+                    chunk = self.rfile.read(chunk_length)
+                    out_file.write(chunk)
+
+                    # Each chunk is followed by an additional empty newline
+                    # that we have to consume.
+                    self.rfile.readline()
+
+    def do_PUT(self):
+        print("### PUT handler")
+        self.do_POST()
+
+
+httpd = HTTPServer(("", PORT), TestHTTPRequestHandler)
+
+print("Serving at port:", httpd.server_port)
+httpd.serve_forever()
