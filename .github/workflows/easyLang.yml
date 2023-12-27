@@ -1,13 +1,20 @@
 name: start easyLang
-on: push
+on:
+  push:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ../
-  
+
     steps:
-      - name: execute py script # run the example.py to get the latest data
-        run: |
-          python example.py
+      - name: Checkout repository content
+        uses: actions/checkout@v2.3.4 # Checkout the repository content to github runner.
+
+      - name: Setup Python Version
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8 # Install the python version needed
+
+      - name: Execute Python script # Run the script.py file to get the latest data
+        run: python example.py
