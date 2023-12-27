@@ -29,7 +29,8 @@ class MyServer(BaseHTTPRequestHandler):
         # read that many bytes from the body of the request
         body = self.rfile.read(content_length)
 
-        result = input_process(body)
+        # result = input_process(body)
+        result = "apple-translated"
           
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
