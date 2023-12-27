@@ -1,35 +1,44 @@
-#!/usr/bin/env python3
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse
+import json
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-class S(BaseHTTPRequestHandler):
-    def _set_headers(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
+class GetHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        self._set_headers()
-
-    def do_HEAD(self):
-        self._set_headers()
+        parsed_path = urlparse(self.path)
+        message = '\n'.join([
+            'CLIENT VALUES:',
+            'client_address=%s (%s)' % (self.client_address,
+                self.address_string()),
+            'command=%s' % self.command,
+            'path=%s' % self.path,
+            'real path=%s' % parsed_path.path,
+            'query=%s' % parsed_path.query,
+            'request_version=%s' % self.request_version,
+            '',
+            'SERVER VALUES:',
+            'server_version=%s' % self.server_version,
+            'sys_version=%s' % self.sys_version,
+            'protocol_version=%s' % self.protocol_version,
+            '',
+            ])
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(message.encode('utf-8'))
+        return
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        self._set_headers()
-        print(post_data)
+        content_len = int(self.headers.getheader('content-length'))
+        post_body = self.rfile.read(content_len)
+        self.send_response(200)
+        self.end_headers()
 
-def run(server_class=HTTPServer, handler_class=S, port=80):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    print('Starting httpd...')
-    httpd.serve_forever()
+        data = json.loads(post_body)
 
-if __name__ == "__main__":
-    from sys import argv
+        self.wfile.write(data['foo'])
+        return
 
-    if len(argv) == 2:
-        run(port=int(argv[1]))
-    else:
-        run()
+if __name__ == '__main__':
+    server = HTTPServer(('localhost', 8080), GetHandler)
+    print('Starting server at http://localhost:8080')
+    server.serve_forever()
