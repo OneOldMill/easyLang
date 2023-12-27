@@ -10,4 +10,4 @@ jobs:
     steps:
       - name: execute py script # run the example.py to get the latest data
         run: |
-          python ../example.py
+          python example.py
