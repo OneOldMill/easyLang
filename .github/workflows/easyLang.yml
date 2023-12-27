@@ -5,10 +5,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8 #install the python needed
       - name: execute py script # run the example.py to get the latest data
         run: |
           python example.py
