@@ -1,39 +1,35 @@
+#!/usr/bin/env python3
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import parse_qs, urlparse
 
-address = ('o.o.o.o', 8080)
-
-class MyHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        print('path = {}'.format(self.path))
-
-        parsed_path = urlparse(self.path)
-        print('parsed: path = {}, query = {}'.format(parsed_path.path, parse_qs(parsed_path.query)))
-
-        print('headers\r\n-----\r\n{}-----'.format(self.headers))
-       
+class S(BaseHTTPRequestHandler):
+    def _set_headers(self):
         self.send_response(200)
-        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+        self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(b'Hello from do_GET')
+
+    def do_GET(self):
+        self._set_headers()
+
+    def do_HEAD(self):
+        self._set_headers()
 
     def do_POST(self):
-        print('path = {}'.format(self.path))
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        self._set_headers()
+        print(post_data)
 
-        parsed_path = urlparse(self.path)
-        print('parsed: path = {}, query = {}'.format(parsed_path.path, parse_qs(parsed_path.query)))
+def run(server_class=HTTPServer, handler_class=S, port=80):
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    print('Starting httpd...')
+    httpd.serve_forever()
 
-        print('headers\r\n-----\r\n{}-----'.format(self.headers))
+if __name__ == "__main__":
+    from sys import argv
 
-        content_length = int(self.headers['content-length'])
-        
-        print('body = {}'.format(self.rfile.read(content_length).decode('utf-8')))
-        
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain; charset=utf-8')
-        self.end_headers()
-        self.wfile.write(b'Hello from do_POST')
-        
-
-with HTTPServer(address, MyHTTPRequestHandler) as server:
-    server.serve_forever()
+    if len(argv) == 2:
+        run(port=int(argv[1]))
+    else:
+        run()
